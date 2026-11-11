@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07172f">
+  <meta name="description" content="Scanner WS: rastreamento técnico de até 20 URLs para identificar oportunidades reais de SEO, estrutura e desempenho.">
+  <title>Scanner de Autoridade Digital | Wendell Soares</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --navy:#07172f; --navy2:#0b2140; --navy3:#102d50; --blue:#286092;
+      --gold:#f3c85d; --gold2:#ffe29a; --ice:#edf3f9; --muted:#a9b9ca;
+      --line:rgba(190,211,235,.17); --green:#8ed8b0; --red:#ff9e96; --amber:#ffd27b;
+      font-family:Inter,"Segoe UI",Arial,sans-serif;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%}
+    body{
+      min-height:100vh;display:grid;place-items:center;padding:22px;color:var(--ice);
+      background:radial-gradient(ellipse at 50% 0%,rgba(38,94,148,.28),transparent 42%),
+                 radial-gradient(ellipse at 8% 88%,rgba(243,200,93,.08),transparent 32%),#030d1d
+    }
+    button,input{font:inherit}
+    button{cursor:pointer}
+    button:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+    .app{
+      position:relative;isolation:isolate;display:flex;flex-direction:column;
+      width:min(720px,calc(100vw - 44px),calc((100svh - 44px)*.8));
+      aspect-ratio:4/5;max-height:calc(100svh - 44px);overflow:hidden;
+      border:1px solid rgba(183,209,236,.24);border-radius:26px;
+      background:radial-gradient(circle at 91% 12%,rgba(42,100,157,.23),transparent 28%),
+                 radial-gradient(circle at 8% 87%,rgba(243,200,93,.07),transparent 25%),
+                 linear-gradient(145deg,#0b2140 0%,#07172f 58%,#06152b 100%);
+      box-shadow:0 28px 90px rgba(0,0,0,.42),0 0 0 1px rgba(255,255,255,.025) inset
+    }
+    .app:before,.app:after{content:"";position:absolute;z-index:-1;pointer-events:none;border:1px solid rgba(243,200,93,.13);border-radius:50%;transform:rotate(-28deg)}
+    .app:before{width:430px;height:180px;right:-230px;top:78px}
+    .app:after{width:345px;height:130px;right:-190px;top:102px;border-color:rgba(117,174,224,.16)}
+    .topbar{min-height:66px;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 24px;border-bottom:1px solid var(--line);background:rgba(4,15,32,.22)}
+    .brand{display:flex;align-items:center;gap:11px;min-width:0}
+    .brand-mark{position:relative;flex:0 0 34px;width:34px;height:34px;display:grid;place-items:center;border:1px solid rgba(243,200,93,.62);border-radius:50%;color:var(--gold);font-size:10px;font-weight:800;letter-spacing:-.7px;box-shadow:0 0 22px rgba(243,200,93,.12)}
+    .brand-mark:before{content:"";position:absolute;width:43px;height:15px;border:1px solid rgba(243,200,93,.55);border-radius:50%;transform:rotate(-34deg)}
+    .brand-name{color:#fff;font-size:11px;font-weight:800;letter-spacing:.11em;white-space:nowrap}
+    .brand-sub{margin-top:3px;color:#9eb2c9;font-size:7px;font-weight:700;letter-spacing:.16em;white-space:nowrap}
+    .top-tag{color:var(--gold);font-size:8px;font-weight:800;letter-spacing:.14em;text-align:right;white-space:nowrap}
+    .content{flex:1;min-height:0;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(243,200,93,.35) transparent;padding:27px 32px 25px}
+    .content::-webkit-scrollbar{width:5px}.content::-webkit-scrollbar-thumb{background:rgba(243,200,93,.3);border-radius:10px}
+    .eyebrow{display:flex;align-items:center;gap:8px;margin:0 0 13px;color:var(--gold);font-size:9px;line-height:1.4;font-weight:800;letter-spacing:.17em;text-transform:uppercase}
+    .eyebrow:before{content:"";width:19px;height:1px;background:var(--gold)}
+    h1,h2,h3,p{margin-top:0}
+    h1{max-width:540px;margin-bottom:13px;color:#fff;font-size:clamp(30px,5.2vw,43px);line-height:1.04;letter-spacing:-.055em;font-weight:850}
+    h1 em,.gold{color:var(--gold);font-style:normal}
+    .lead{max-width:540px;margin-bottom:20px;color:#c2cfdd;font-size:13px;line-height:1.65}
+    .radar-scene{
+      position:relative;min-height:190px;margin:18px 0 20px;overflow:hidden;
+      border:1px solid rgba(130,175,218,.2);border-radius:16px;
+      background:radial-gradient(circle at 69% 47%,rgba(38,117,177,.27),transparent 34%),
+                 linear-gradient(115deg,rgba(14,45,79,.72),rgba(5,19,39,.44))
+    }
+    .radar-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(151,185,216,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(151,185,216,.055) 1px,transparent 1px);background-size:25px 25px;mask-image:linear-gradient(90deg,transparent,#000 25%,#000)}
+    .radar-circle{position:absolute;width:172px;height:172px;right:55px;top:8px;border:1px solid rgba(243,200,93,.55);border-radius:50%;box-shadow:0 0 0 18px rgba(74,137,190,.055),0 0 0 39px rgba(74,137,190,.035),0 0 34px rgba(69,143,203,.16)}
+    .radar-circle:before,.radar-circle:after{content:"";position:absolute;border:1px solid rgba(111,177,225,.3);border-radius:50%}
+    .radar-circle:before{inset:27px}.radar-circle:after{inset:57px}
+    .radar-sweep{position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 220deg,transparent 0deg,rgba(243,200,93,.02) 245deg,rgba(243,200,93,.36) 310deg,transparent 360deg);animation:sweep 7s linear infinite}
+    .radar-cross{position:absolute;left:50%;top:50%;width:1px;height:100%;background:rgba(164,197,226,.17);transform:translate(-50%,-50%)}
+    .radar-cross.x{width:100%;height:1px}
+    .radar-dot{position:absolute;width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 13px var(--gold)}
+    .radar-dot.one{right:100px;top:58px}.radar-dot.two{right:160px;top:114px;width:5px;height:5px;background:#86c9ef;box-shadow:0 0 10px #86c9ef}
+    .radar-dot.three{right:70px;top:128px;width:4px;height:4px}
+    .radar-scanline{position:absolute;right:0;top:0;width:50%;height:100%;background:linear-gradient(90deg,transparent,rgba(92,163,215,.08),transparent);transform:skewX(-18deg)}
+    .radar-copy{position:absolute;left:18px;top:22px;max-width:190px}
+    .radar-copy strong{display:block;color:#fff;font-size:13px;line-height:1.25}
+    .radar-copy span{display:block;margin-top:7px;color:#9eb5cc;font-size:8px;line-height:1.5;letter-spacing:.09em;text-transform:uppercase}
+    .radar-label{position:absolute;left:18px;bottom:16px;color:#b9c9d9;font-size:8px;font-weight:800;letter-spacing:.15em;text-transform:uppercase}
+    @keyframes sweep{to{transform:rotate(360deg)}}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:18px 0 21px}
+    .stat{padding:11px 10px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.035)}
+    .stat strong{display:block;color:var(--gold);font-size:16px;line-height:1.1}
+    .stat span{display:block;margin-top:5px;color:#aebfd0;font-size:8px;letter-spacing:.08em;text-transform:uppercase}
+    .primary,.secondary{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:44px;padding:0 17px;border:0;border-radius:9px;font-size:10px;font-weight:800;transition:transform .18s ease,box-shadow .18s ease,background .18s ease}
+    .primary{color:#15233a;background:linear-gradient(135deg,#ffe08a,#efbd4b);box-shadow:0 8px 22px rgba(243,200,93,.18)}
+    .primary:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(243,200,93,.28)}
+    .secondary{color:#d8e3ee;border:1px solid var(--line);background:rgba(255,255,255,.045)}
+    .secondary:hover{background:rgba(255,255,255,.09)}
+    .arrow{font-size:15px;line-height:0}
+    .note{margin:12px 0 0;color:#8fa4bb;font-size:9px;line-height:1.55}
+    .field{margin:15px 0}
+    .field label{display:block;margin-bottom:7px;color:#dbe5ef;font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+    .url-wrap{display:flex;align-items:center;gap:9px;min-height:48px;padding:0 13px;border:1px solid rgba(153,187,221,.32);border-radius:9px;background:rgba(2,13,28,.58)}
+    .url-wrap:focus-within{border-color:rgba(243,200,93,.7);box-shadow:0 0 0 2px rgba(243,200,93,.08)}
+    .url-wrap icon{color:#9bb2c9}
+    .url-wrap input{width:100%;min-width:0;min-height:44px;border:0;outline:0;color:#fff;background:transparent;font-size:12px}
+    .url-wrap input::placeholder{color:#70869f}
+    .field small{display:block;margin-top:7px;color:#8197ae;font-size:9px;line-height:1.5}
+    .form-error{min-height:17px;margin:7px 0 0;color:#ffb0a8;font-size:10px;line-height:1.4}
+    .form-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:19px}
+    .text-button{padding:7px 0;border:0;color:#9fb1c5;background:transparent;font-size:10px;font-weight:700}
+    .text-button:hover{color:var(--gold)}
+    .loading-panel{padding:18px;border:1px solid var(--line);border-radius:13px;background:rgba(255,255,255,.035)}
+    .loading-orbit{position:relative;width:76px;height:76px;margin:0 auto 14px;border:1px solid rgba(243,200,93,.3);border-radius:50%;box-shadow:0 0 0 9px rgba(243,200,93,.04),0 0 0 19px rgba(243,200,93,.025)}
+    .loading-orbit:before{content:"";position:absolute;inset:9px;border:1px dashed rgba(115,180,226,.45);border-radius:50%;animation:sweep 5s linear infinite}
+    .loading-orbit:after{content:"";position:absolute;width:8px;height:8px;top:7px;right:13px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px var(--gold)}
+    .loading-title{text-align:center;color:#fff;font-size:15px;font-weight:800}
+    .loading-copy{text-align:center;color:#aebfd0;font-size:10px;line-height:1.5}
+    .loading-steps{display:grid;gap:9px;margin-top:18px}
+    .loading-step{display:flex;align-items:center;gap:9px;color:#9eb1c5;font-size:10px}
+    .loading-step .dot{width:7px;height:7px;border:1px solid rgba(243,200,93,.5);border-radius:50%}
+    .loading-step.active{color:#fff}.loading-step.active .dot{background:var(--gold);box-shadow:0 0 10px rgba(243,200,93,.6)}
+    .loading-step.done .dot{background:var(--green);border-color:var(--green)}
+    .result-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:14px}
+    .result-head h1{font-size:clamp(26px,4.5vw,36px);margin:0}
+    .score-ring{--score:0;position:relative;flex:0 0 96px;width:96px;height:96px;display:grid;place-items:center;border-radius:50%;background:conic-gradient(var(--gold) calc(var(--score)*1%),rgba(255,255,255,.1) 0)}
+    .score-ring:before{content:"";position:absolute;inset:7px;border-radius:50%;background:#0b2140;border:1px solid rgba(255,255,255,.08)}
+    .score-inner{position:relative;text-align:center;color:#fff;font-size:26px;font-weight:850;line-height:1}
+    .score-inner small{display:block;margin-top:4px;color:#9eb1c5;font-size:7px;letter-spacing:.13em;text-transform:uppercase}
+    .result-sub{margin:0 0 15px;color:#b9c9d9;font-size:10px;line-height:1.6}
+    .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:12px 0}
+    .metric{padding:10px 9px;border:1px solid var(--line);border-radius:9px;background:rgba(255,255,255,.035)}
+    .metric strong{display:block;color:#fff;font-size:16px;line-height:1.1}
+    .metric span{display:block;margin-top:5px;color:#94a9bf;font-size:7px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+    .section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:19px 0 9px;color:#fff;font-size:12px;font-weight:850}
+    .section-title small{color:#8fa4bb;font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+    .score-note{margin:8px 0 0;color:#8297ae;font-size:8px;line-height:1.5}
+    .category-scores{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+    .cat-score{padding:9px;border:1px solid var(--line);border-radius:8px;background:rgba(255,255,255,.025)}
+    .cat-score b{display:block;color:var(--gold);font-size:14px}
+    .cat-score span{display:block;margin-top:4px;color:#9eb1c5;font-size:7px;letter-spacing:.05em;text-transform:uppercase}
+    .recommendations{display:grid;gap:9px}
+    .rec{padding:13px 14px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.035)}
+    .rec-top{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+    .rec-num{flex:0 0 25px;width:25px;height:25px;display:grid;place-items:center;border-radius:7px;color:#16253a;background:var(--gold);font-size:9px;font-weight:900}
+    .severity{margin-left:auto;padding:4px 6px;border-radius:99px;font-size:7px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+    .severity.high{color:#ffb8b0;background:rgba(255,158,150,.11)}
+    .severity.medium{color:#ffdc91;background:rgba(255,210,123,.1)}
+    .severity.low{color:#a9d6f1;background:rgba(134,201,239,.1)}
+    .rec h3{margin:0;color:#fff;font-size:11px;line-height:1.35}
+    .rec p{margin:0;color:#afc0d1;font-size:9px;line-height:1.55}
+    .rec .action{margin-top:7px;padding-top:7px;border-top:1px solid rgba(190,211,235,.1);color:#e4d4a8}
+    .page-list{display:grid;gap:7px}
+    .page-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:9px 10px;border:1px solid rgba(190,211,235,.12);border-radius:8px;background:rgba(255,255,255,.025)}
+    .page-url{overflow:hidden;color:#dbe5ef;font-size:9px;text-overflow:ellipsis;white-space:nowrap}
+    .page-title{overflow:hidden;margin-top:4px;color:#8197ae;font-size:8px;text-overflow:ellipsis;white-space:nowrap}
+    .page-status{padding:4px 6px;border-radius:99px;color:var(--green);background:rgba(142,216,176,.09);font-size:7px;font-weight:900}
+    .page-status.bad{color:#ffb8b0;background:rgba(255,158,150,.1)}
+    .gold-panel{position:relative;overflow:hidden;margin-top:16px;padding:16px;border:1px solid rgba(243,200,93,.45);border-radius:12px;color:#17243a;background:radial-gradient(circle at 95% 5%,rgba(255,255,255,.55),transparent 30%),linear-gradient(125deg,#ffe9ad 0%,#f3c85d 55%,#dca83d 100%)}
+    .gold-panel .kicker{margin-bottom:7px;color:#654a16;font-size:8px;font-weight:900;letter-spacing:.14em;text-transform:uppercase}
+    .gold-panel h2{position:relative;z-index:1;max-width:440px;margin-bottom:7px;color:#10233e;font-size:18px}
+    .gold-panel p{position:relative;z-index:1;max-width:470px;margin-bottom:12px;color:#59471f;font-size:10px;line-height:1.5}
+    .gold-panel .primary{position:relative;z-index:1;color:#fff;background:#102b4c;box-shadow:none}
+    .disclaimer{margin-top:13px;padding-top:10px;border-top:1px solid var(--line);color:#8295aa;font-size:8px;line-height:1.55}
+    .result-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}
+    .result-actions button{min-height:36px;padding:0 11px;font-size:9px}
+    .bottombar{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:38px;padding:8px 24px;border-top:1px solid rgba(190,211,235,.11);color:#8297ae;font-size:8px;letter-spacing:.04em;background:rgba(2,12,27,.2)}
+    .bottombar strong{color:#d8c28d;font-weight:700}
+    @media(max-width:640px){
+      body{display:block;padding:0;background:var(--navy)}
+      .app{width:100%;height:100svh;max-height:none;aspect-ratio:auto;border:0;border-radius:0;box-shadow:none}
+      .topbar{min-height:62px;padding:13px 19px}.content{padding:24px 21px 28px}.bottombar{padding:9px 19px}
+      h1{font-size:clamp(31px,9vw,40px)}.radar-scene{min-height:170px}.radar-circle{right:28px}
+      .radar-copy{max-width:145px}.metrics{grid-template-columns:repeat(2,1fr)}
+    }
+    @media(max-width:380px){
+      .content{padding-left:17px;padding-right:17px}.stats{gap:6px}.stat{padding:9px 7px}
+      .category-scores{grid-template-columns:repeat(2,1fr)}.score-ring{flex-basis:82px;width:82px;height:82px}
+    }
+    @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+    @media print{
+      @page{size:A4;margin:14mm}
+      body{display:block;padding:0;background:#fff;color:#12243b}
+      .app{width:100%;max-width:100%;height:auto;max-height:none;aspect-ratio:auto;overflow:visible;border:0;border-radius:0;box-shadow:none;background:#fff;color:#12243b}
+      .app:before,.app:after,.topbar,.bottombar,.result-actions,.gold-panel .primary{display:none!important}
+      .content{overflow:visible;padding:0}
+      .eyebrow,.section-title{color:#8b651b}
+      .result-head h1,.rec h3{color:#12243b}
+      .result-sub,.rec p,.page-url,.page-title{color:#35485e}
+      .score-ring{print-color-adjust:exact}
+      .rec,.page-row,.metric,.cat-score{border-color:#d7dce2;background:#f7f5ef;break-inside:avoid}
+      .gold-panel{background:#fff4d5;break-inside:avoid}
+      .gold-panel h2{color:#12243b}.gold-panel p{color:#59471f}
+      .disclaimer,.score-note{color:#526276}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand" aria-label="Wendell Soares, estratégia e autoridade digital">
+        <div class="brand-mark" aria-hidden="true">WS</div>
+        <div>
+          <div class="brand-name">WENDELL SOARES</div>
+          <div class="brand-sub">ESTRATÉGIA • CONTEÚDO • AUTORIDADE</div>
+        </div>
+      </div>
+      <div class="top-tag">FERRAMENTA 04<br>SCANNER WS</div>
+    </header>
+    <main class="content" id="content" aria-live="polite"></main>
+    <footer class="bottombar">
+      <span>RASTREAR. COMPREENDER. EVOLUIR.</span>
+      <strong>WS / 04</strong>
+    </footer>
+  </div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      // Depois de publicar o Worker na Cloudflare, cole aqui o endereço terminado em /scan.
+      const API_ENDPOINT = "COLE_AQUI_A_URL_DO_WORKER/scan";
+      const CONTACT_URL = "https://wendellsoares.jor.br";
+
+      const state = { screen: "welcome", url: "", report: null, loadingTimer: null, loadingStep: 0 };
+      const content = document.getElementById("content");
+
+      function esc(value) {
+        return String(value ?? "").replace(/[&<>"']/g, c => ({
+          "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+        }[c]));
+      }
+      function domainOf(value) {
+        try { return new URL(value).hostname.replace(/^www\./, ""); } catch { return value; }
+      }
+      function normalizeUrl(value) {
+        let raw = value.trim();
+        if (!raw) return null;
+        if (!/^https?:\/\//i.test(raw)) raw = "https://" + raw;
+        try {
+          const url = new URL(raw);
+          if (!["http:","https:"].includes(url.protocol) || !url.hostname.includes(".") || url.username || url.password) return null;
+          url.hash = "";
+          return url.href;
+        } catch { return null; }
+      }
+
+      function renderWelcome() {
+        content.innerHTML = `
+          <section>
+            <p class="eyebrow">SEO técnico • GEO • Desempenho • Estrutura</p>
+            <h1>Encontre o que seu site ainda precisa para ganhar <em>autoridade.</em></h1>
+            <p class="lead">O Scanner WS rastreia seu sitemap, analisa até 20 páginas e identifica oportunidades reais de melhoria em estrutura, conteúdo, indexabilidade e desempenho.</p>
+            <div class="radar-scene" aria-hidden="true">
+              <div class="radar-grid"></div><div class="radar-circle"><div class="radar-sweep"></div><div class="radar-cross"></div><div class="radar-cross x"></div></div>
+              <div class="radar-dot one"></div><div class="radar-dot two"></div><div class="radar-dot three"></div><div class="radar-scanline"></div>
+              <div class="radar-copy"><strong>Seu site sob uma nova perspectiva.</strong><span>Rastreamento técnico e recomendações orientadas por evidências</span></div>
+              <div class="radar-label">Scanner de autoridade digital / WS</div>
+            </div>
+            <div class="stats">
+              <div class="stat"><strong>20 URLs</strong><span>Por análise</span></div>
+              <div class="stat"><strong>Sitemap</strong><span>Rastreamento</span></div>
+              <div class="stat"><strong>5 dicas</strong><span>Prioridades reais*</span></div>
+            </div>
+            <button class="primary" data-action="start">Iniciar análise <span class="arrow">↗</span></button>
+            <p class="note">*A ferramenta apresenta até cinco recomendações encontradas na análise. Se identificar menos oportunidades, não inventará problemas para completar a lista.</p>
+          </section>`;
+      }
+
+      function renderForm() {
+        content.innerHTML = `
+          <section>
+            <p class="eyebrow">01 / Identificação do domínio</p>
+            <h1>Qual site vamos colocar no <em>radar?</em></h1>
+            <p class="lead">Informe o domínio que deseja analisar. Vamos procurar o robots.txt, localizar o sitemap e rastrear até 20 páginas públicas do mesmo domínio.</p>
+            <div class="field">
+              <label for="site-url">ENDEREÇO DO SITE</label>
+              <div class="url-wrap">
+                <span aria-hidden="true">◎</span>
+                <input id="site-url" type="text" inputmode="url" autocomplete="url" placeholder="https://suaempresa.com.br" value="${esc(state.url)}">
+              </div>
+              <small>Ex.: suaempresa.com.br. Não é necessário informar uma página interna.</small>
+            </div>
+            <div class="loading-panel" style="padding:12px 14px">
+              <div style="display:flex;align-items:center;gap:9px;color:#c4d2e0;font-size:9px;line-height:1.5">
+                <span style="color:var(--gold);font-size:15px">✓</span>
+                Até 20 URLs do sitemap ou páginas internas descobertas na página inicial.
+              </div>
+              <div style="display:flex;align-items:center;gap:9px;margin-top:8px;color:#c4d2e0;font-size:9px;line-height:1.5">
+                <span style="color:var(--gold);font-size:15px">✓</span>
+                Verificações técnicas e análise de desempenho mobile da página inicial.
+              </div>
+              <div style="display:flex;align-items:center;gap:9px;margin-top:8px;color:#c4d2e0;font-size:9px;line-height:1.5">
+                <span style="color:var(--gold);font-size:15px">✓</span>
+                Recomendações baseadas no que for efetivamente encontrado.
+              </div>
+            </div>
+            <p class="form-error" id="form-error" role="alert"></p>
+            <div class="form-actions">
+              <button class="text-button" data-action="back">← Voltar</button>
+              <button class="primary" data-action="scan">Analisar meu site <span class="arrow">↗</span></button>
+            </div>
+          </section>`;
+        const input = document.getElementById("site-url");
+        input.focus();
+        input.addEventListener("keydown", event => { if (event.key === "Enter") startScan(); });
+      }
+
+      function renderLoading() {
+        content.innerHTML = `
+          <section>
+            <p class="eyebrow">Scanner WS / análise em andamento</p>
+            <h1>Estamos lendo os sinais do seu <em>site.</em></h1>
+            <p class="lead">O rastreamento pode levar alguns instantes, especialmente quando o domínio possui várias páginas.</p>
+            <div class="loading-panel">
+              <div class="loading-orbit"></div>
+              <div class="loading-title">Analisando ${esc(domainOf(state.url))}</div>
+              <p class="loading-copy">Não feche esta janela enquanto a análise estiver em andamento.</p>
+              <div class="loading-steps" id="loading-steps">
+                <div class="loading-step active"><span class="dot"></span>Localizando robots.txt e sitemap</div>
+                <div class="loading-step"><span class="dot"></span>Rastreando até 20 páginas públicas</div>
+                <div class="loading-step"><span class="dot"></span>Verificando estrutura, SEO e imagens</div>
+                <div class="loading-step"><span class="dot"></span>Consultando desempenho mobile</div>
+                <div class="loading-step"><span class="dot"></span>Organizando recomendações prioritárias</div>
+              </div>
+            </div>
+            <p class="note">O tempo varia conforme a resposta do servidor do site analisado e do serviço PageSpeed.</p>
+          </section>`;
+      }
+
+      function updateLoadingStep() {
+        const steps = [...document.querySelectorAll(".loading-step")];
+        if (!steps.length) return;
+        steps.forEach((step, index) => {
+          step.classList.toggle("done", index < state.loadingStep);
+          step.classList.toggle("active", index === state.loadingStep);
+        });
+        state.loadingStep = Math.min(state.loadingStep + 1, steps.length - 1);
+      }
+
+      function startLoadingTicker() {
+        state.loadingStep = 0;
+        clearInterval(state.loadingTimer);
+        state.loadingTimer = setInterval(updateLoadingStep, 6500);
+      }
+
+      async function startScan() {
+        const input = document.getElementById("site-url");
+        const error = document.getElementById("form-error");
+        const normalized = normalizeUrl(input.value);
+        if (!normalized) {
+          error.textContent = "Digite um endereço válido, como suaempresa.com.br.";
+          input.focus();
+          return;
+        }
+        if (API_ENDPOINT.startsWith("COLE_AQUI")) {
+          error.textContent = "A conexão do scanner ainda precisa ser configurada com a URL do Worker da Cloudflare.";
+          return;
+        }
+        state.url = normalized;
+        state.screen = "loading";
+        renderLoading();
+        startLoadingTicker();
+
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 150000);
+        try {
+          const response = await fetch(API_ENDPOINT, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url: normalized }),
+            signal: controller.signal
+          });
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok) throw new Error(data.error || `Não foi possível concluir a análise (HTTP ${response.status}).`);
+          if (!data || !data.pages || !Array.isArray(data.pages)) throw new Error("O servidor retornou um relatório incompleto.");
+          state.report = data;
+          state.screen = "result";
+          clearInterval(state.loadingTimer);
+          renderResult();
+        } catch (err) {
+          clearInterval(state.loadingTimer);
+          state.screen = "form";
+          renderForm();
+          const message = err.name === "AbortError"
+            ? "A análise excedeu o tempo limite. Tente novamente ou analise um domínio com menos páginas."
+            : err.message || "Falha de conexão. Verifique se o Worker está publicado e se o domínio está autorizado no CORS.";
+          const formError = document.getElementById("form-error");
+          if (formError) formError.textContent = message;
+        } finally {
+          clearTimeout(timeout);
+        }
+      }
+
+      function scoreColor(score) {
+        if (score >= 85) return "var(--green)";
+        if (score >= 65) return "var(--amber)";
+        return "var(--red)";
+      }
+
+      function renderResult() {
+        const r = state.report;
+        const recs = (r.recommendations || []).slice(0, 5);
+        const pageRows = (r.pages || []).map(page => `
+          <div class="page-row">
+            <div style="min-width:0">
+              <div class="page-url" title="${esc(page.url)}">${esc(page.url)}</div>
+              <div class="page-title">${esc(page.title || "Sem título identificado")} · ${page.wordCount || 0} palavras · ${page.h1Count || 0} H1</div>
+            </div>
+            <span class="page-status ${page.status >= 400 || page.error ? "bad" : ""}">${page.status ? `HTTP ${page.status}` : "ERRO"}</span>
+          </div>`).join("");
+
+        const recMarkup = recs.length ? recs.map((rec, index) => `
+          <article class="rec">
+            <div class="rec-top">
+              <span class="rec-num">${String(index + 1).padStart(2, "0")}</span>
+              <h3>${esc(rec.title)}</h3>
+              <span class="severity ${esc(rec.severity || "medium")}">${esc(rec.severityLabel || "Oportunidade")}</span>
+            </div>
+            <p>${esc(rec.description)}</p>
+            <p class="action"><strong>Próximo passo:</strong> ${esc(rec.action)}</p>
+            <p style="margin-top:6px;color:#849bb2;font-size:8px">Encontrado em ${rec.affectedCount || 1} página(s)${rec.sampleUrls?.length ? ` · Ex.: ${esc(domainOf(rec.sampleUrls[0]))}${esc(new URL(rec.sampleUrls[0]).pathname)}` : ""}</p>
+          </article>`).join("") : `
+          <article class="rec">
+            <div class="rec-top"><span class="rec-num">✓</span><h3>Nenhuma falha prioritária identificada nesta amostra</h3></div>
+            <p>As verificações básicas não apontaram oportunidades suficientes para gerar recomendações negativas. Isso não substitui uma auditoria editorial, de concorrência ou de reputação externa.</p>
+            <p class="action"><strong>Próximo passo:</strong> aprofunde a análise de posicionamento, diferenciação, qualidade das fontes e desempenho de páginas comerciais.</p>
+          </article>`;
+
+        const ps = r.pageSpeed || null;
+        const catMarkup = ps?.categories ? `
+          <div class="category-scores">
+            ${[
+              ["performance","Desempenho"],
+              ["seo","SEO"],
+              ["accessibility","Acessibilidade"],
+              ["best-practices","Boas práticas"]
+            ].map(([key,label]) => ps.categories[key] != null ? `<div class="cat-score"><b>${Math.round(ps.categories[key])}</b><span>${label}</span></div>` : "").join("")}
+          </div>` : `<p class="score-note">A consulta PageSpeed não retornou uma pontuação nesta execução. As verificações de estrutura das páginas foram realizadas normalmente.</p>`;
+
+        const metricsMarkup = `
+          <div class="metrics">
+            <div class="metric"><strong>${r.pagesScanned || 0}/${r.urlsDiscovered || 0}</strong><span>Páginas analisadas</span></div>
+            <div class="metric"><strong>${r.sitemapFound ? "SIM" : "NÃO"}</strong><span>Sitemap localizado</span></div>
+            <div class="metric"><strong>${r.recommendations?.length || 0}</strong><span>Oportunidades</span></div>
+            <div class="metric"><strong>${ps?.performance != null ? Math.round(ps.performance) : "—"}</strong><span>Performance mobile</span></div>
+          </div>`;
+
+        content.innerHTML = `
+          <section>
+            <p class="eyebrow">Relatório concluído / ${esc(domainOf(r.siteUrl || state.url))}</p>
+            <div class="result-head">
+              <h1>Seu site está no <em>radar.</em></h1>
+              <div class="score-ring" style="--score:${Math.max(0,Math.min(100,r.score || 0))};" role="img" aria-label="Índice técnico WS ${r.score || 0} de 100">
+                <div class="score-inner">${r.score ?? "—"}<small>índice WS</small></div>
+              </div>
+            </div>
+            <p class="result-sub">Análise de ${esc(r.siteUrl || state.url)} · ${esc(r.scanDate || "")}. O índice é uma estimativa técnica própria baseada nas verificações descritas abaixo, não uma nota oficial do Google.</p>
+            ${metricsMarkup}
+            <p class="score-note">O rastreador priorizou o sitemap quando disponível e analisou no máximo 20 URLs do mesmo domínio. ${r.robotsFound ? "robots.txt localizado." : "robots.txt não localizado."} ${r.warnings?.length ? esc(r.warnings[0]) : ""}</p>
+
+            <div class="section-title">Desempenho e auditoria Lighthouse <small>Google PageSpeed / mobile</small></div>
+            ${catMarkup}
+            ${ps?.metrics ? `<p class="score-note">LCP: ${esc(ps.metrics.lcp || "—")} · CLS: ${esc(ps.metrics.cls || "—")} · TBT: ${esc(ps.metrics.tbt || "—")} · FCP: ${esc(ps.metrics.fcp || "—")}</p>` : ""}
+
+            <div class="section-title">O que merece atenção <small>${recs.length} recomendação(ões)</small></div>
+            <div class="recommendations">${recMarkup}</div>
+
+            <div class="section-title">Páginas rastreadas <small>${(r.pages || []).length} URL(s)</small></div>
+            <div class="page-list">${pageRows || '<p class="score-note">Nenhuma página foi rastreada.</p>'}</div>
+
+            <div class="gold-panel">
+              <div class="kicker">Próximo nível / Estratégia WS</div>
+              <h2>Diagnóstico técnico é o começo. Autoridade é construção.</h2>
+              <p>Transforme os achados em um plano de ação que conecte SEO, conteúdo, posicionamento, reputação e presença nas IAs.</p>
+              <button class="primary" data-action="contact">Quero uma análise estratégica <span class="arrow">↗</span></button>
+            </div>
+            <div class="result-actions">
+              <button class="secondary" data-action="copy">Copiar relatório</button>
+              <button class="secondary" data-action="print">Salvar relatório em PDF</button>
+              <button class="secondary" data-action="new">Analisar outro site</button>
+            </div>
+            <p class="disclaimer">Limites: o scanner verifica páginas públicas e HTML recebido pelo servidor, sem executar JavaScript de aplicações client-side. O PageSpeed é consultado apenas para a página inicial em modo mobile. O rastreamento respeita regras de robots.txt aplicáveis e limita a amostra a 20 URLs. O índice WS é orientativo e não prevê posições no Google nem citações em ferramentas de IA. Os dados são processados durante a análise; este projeto não grava relatórios em banco de dados.</p>
+          </section>`;
+      }
+
+      function reportAsText() {
+        const r = state.report;
+        return [
+          "SCANNER DE AUTORIDADE DIGITAL | WENDELL SOARES",
+          `Site: ${r.siteUrl}`,
+          `Índice técnico WS: ${r.score}/100`,
+          `Páginas analisadas: ${r.pagesScanned}/${r.urlsDiscovered}`,
+          `Sitemap localizado: ${r.sitemapFound ? "Sim" : "Não"}`,
+          `PageSpeed mobile: ${r.pageSpeed?.performance ?? "Não disponível"}`,
+          "",
+          "RECOMENDAÇÕES:",
+          ...(r.recommendations || []).map((item, i) => `${i+1}. ${item.title}\n   ${item.description}\n   Próximo passo: ${item.action}`),
+          "",
+          "PÁGINAS:",
+          ...(r.pages || []).map(p => `- ${p.url} | HTTP ${p.status || "erro"} | ${p.title || "sem título"}`),
+          "",
+          "Índice WS é estimativa técnica própria. Não é nota oficial do Google."
+        ].join("\n");
+      }
+
+      async function copyReport(button) {
+        const text = reportAsText();
+        try {
+          await navigator.clipboard.writeText(text);
+          button.textContent = "Relatório copiado ✓";
+        } catch {
+          const area = document.createElement("textarea");
+          area.value = text; area.style.position = "fixed"; area.style.opacity = "0";
+          document.body.appendChild(area); area.select();
+          try { document.execCommand("copy"); button.textContent = "Relatório copiado ✓"; }
+          catch { button.textContent = "Não foi possível copiar"; }
+          area.remove();
+        }
+        setTimeout(() => { if (button.isConnected) button.textContent = "Copiar relatório"; }, 1800);
+      }
+
+      function render() {
+        if (state.screen === "welcome") renderWelcome();
+        else if (state.screen === "form") renderForm();
+        else if (state.screen === "loading") renderLoading();
+        else if (state.screen === "result") renderResult();
+        content.scrollTop = 0;
+      }
+
+      content.addEventListener("click", event => {
+        const button = event.target.closest("[data-action]");
+        if (!button) return;
+        const action = button.dataset.action;
+        if (action === "start") { state.screen = "form"; render(); }
+        else if (action === "back") { state.screen = "welcome"; render(); }
+        else if (action === "scan") startScan();
+        else if (action === "new") { state.screen = "form"; state.report = null; render(); }
+        else if (action === "print") window.print();
+        else if (action === "copy") copyReport(button);
+        else if (action === "contact") window.open(CONTACT_URL, "_blank", "noopener,noreferrer");
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>
